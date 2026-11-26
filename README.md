@@ -47,6 +47,10 @@ Each use case folder holds the document as PDF and DOCX, plus `wazuh_rule_NNN.xm
 
 Open a use case folder for its description and documents.
 
+## For new AI chats
+
+Start a new chat by sharing [AI-Playbook/CLAUDE.md](AI-Playbook/CLAUDE.md). It holds the conventions, the document template and the build workflow.
+
 ## Adding a use case
 
 1. Create `Use-Cases/<Stage>/CUC-NNN_<Code>-<Technique>_<Name>/`.
