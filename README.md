@@ -20,6 +20,7 @@ Maintained by **Hassan Kaleem**, Detection Engineer at Commtel.
 | **Total** | | **581** | **5** | **576** | `█░░░░░░░░░░░░░░░░░░░ 0.9%` |
 
 The full register of 581 use cases, with CUC numbers, MITRE techniques and status, is in [Framework/Commtel_Usecase_Framework.xlsx](Framework/Commtel_Usecase_Framework.xlsx).
+
 ## Structure
 
 ```
