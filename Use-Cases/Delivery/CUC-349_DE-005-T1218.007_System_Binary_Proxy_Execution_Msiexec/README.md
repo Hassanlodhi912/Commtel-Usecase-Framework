@@ -2,7 +2,7 @@
 
 | Stage | Code | MITRE |
 |---|---|---|
-| Delivery | DE-005 | [T1218.007 Msiexec](https://attack.mitre.org/techniques/T1218/007/) (Defense Evasion) |
+| Delivery | DE-005 | [T1218.007 Msiexec](https://attack.mitre.org/techniques/T1218/007/) (Stealth, formerly Defense Evasion) |
 
 **What it detects:** attackers using the signed Windows Installer binary msiexec.exe to run malicious MSI packages or DLLs from local or remote paths, bypassing application control. Used by QakBot and IcedID.
 
