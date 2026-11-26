@@ -1,0 +1,29 @@
+title: CUC-045-01 WMI Provider Host Spawned a Process
+id: d4136bd2-9c22-4512-a4f2-97efed278ea7
+status: test
+description: Detects a process created by the WMI Provider Host (WmiPrvSE.exe), which is the result of
+    Win32_Process.Create being invoked locally or remotely (wmic process call create, Invoke-WmiMethod,
+    Invoke-CimMethod, derived Win32_Process classes, remote WMI). Built on Windows Security Event 4688.
+references:
+    - https://attack.mitre.org/techniques/T1047/
+author: Commtel Detection Engineering
+date: 2026-10-17
+tags:
+    - attack.execution
+    - attack.t1047
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4688
+        ParentProcessName|endswith: '\WmiPrvSE.exe'
+    filter_whitelist:
+        # CUC-045: Whitelisted WMI Child Processes
+        NewProcessName|endswith:
+            - '\WerFault.exe'
+    condition: selection and not 1 of filter_*
+falsepositives:
+    - Configuration management agents (SCCM / MECM, Intune scripts) and monitoring tools that launch processes through WMI
+    - Administrator remote execution through WMI from approved jump hosts
+level: high

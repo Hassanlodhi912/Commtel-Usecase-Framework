@@ -1,0 +1,34 @@
+title: CUC-045-04 PowerShell WMI Method Invocation in Command Line
+id: f53d97cc-7305-4bc7-b2db-92877159f2d6
+status: test
+description: Detects PowerShell started with WMI / CIM method invocation or Win32_Process class handling
+    in its command line (Invoke-WmiMethod, Invoke-CimMethod, ManagementClass, [wmiclass]).
+references:
+    - https://attack.mitre.org/techniques/T1047/
+author: Commtel Detection Engineering
+date: 2026-10-17
+tags:
+    - attack.execution
+    - attack.t1047
+logsource:
+    product: windows
+    service: security
+detection:
+    selection_img:
+        EventID: 4688
+        NewProcessName|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+    selection_cli:
+        CommandLine|contains:
+            - 'Invoke-WmiMethod'
+            - 'Invoke-CimMethod'
+            - 'Win32_Process'
+            - 'ManagementClass'
+            - '[wmiclass]'
+            - 'New-CimSession'
+            - 'iwmi '
+    condition: all of selection_*
+falsepositives:
+    - Administrative PowerShell automation using WMI / CIM
+level: high

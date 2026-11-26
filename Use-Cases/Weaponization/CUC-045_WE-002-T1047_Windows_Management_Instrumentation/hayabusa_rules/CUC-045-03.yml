@@ -1,0 +1,48 @@
+title: CUC-045-03 WMIC Local Discovery
+id: 4477d1b7-aa55-4ba4-85d2-a0f627da4b19
+status: test
+description: Detects wmic.exe used to enumerate users, groups, processes, installed patches, software,
+    services, shares, antivirus products and system information (WMI based discovery).
+references:
+    - https://attack.mitre.org/techniques/T1047/
+author: Commtel Detection Engineering
+date: 2026-10-17
+tags:
+    - attack.execution
+    - attack.discovery
+    - attack.t1047
+logsource:
+    product: windows
+    service: security
+detection:
+    selection_img:
+        EventID: 4688
+        NewProcessName|endswith: '\wmic.exe'
+    selection_cli:
+        CommandLine|contains:
+            - 'useraccount'
+            - 'sysaccount'
+            - 'group get'
+            - 'group list'
+            - 'qfe'
+            - 'process get'
+            - 'process list'
+            - 'product get'
+            - 'service get'
+            - 'startup'
+            - 'share get'
+            - 'nicconfig'
+            - 'computersystem'
+            - 'os get'
+            - 'logicaldisk'
+            - 'environment'
+            - 'antivirusproduct'
+            - 'securitycenter'
+    filter_whitelist:
+        # CUC-045: Whitelisted WMIC Admin Hosts
+        Computer:
+            - 'PLACEHOLDER-ADMIN-HOST'
+    condition: all of selection_* and not 1 of filter_*
+falsepositives:
+    - Inventory, asset management and IT support scripts
+level: medium

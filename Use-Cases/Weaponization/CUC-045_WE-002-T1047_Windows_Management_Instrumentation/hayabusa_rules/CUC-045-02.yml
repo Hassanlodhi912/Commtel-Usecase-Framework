@@ -1,0 +1,29 @@
+title: CUC-045-02 WMIC Process Execution, Remote Node or Delete
+id: f6383709-c94a-4705-bf35-b00ae5a04ccd
+status: test
+description: Detects wmic.exe used to create a process (process call create), to run against a remote
+    node (/node:) or to delete objects (process or shadow copy delete). Built on Windows Security Event 4688.
+references:
+    - https://attack.mitre.org/techniques/T1047/
+author: Commtel Detection Engineering
+date: 2026-10-17
+tags:
+    - attack.execution
+    - attack.t1047
+logsource:
+    product: windows
+    service: security
+detection:
+    selection_img:
+        EventID: 4688
+        NewProcessName|endswith: '\wmic.exe'
+    selection_cli:
+        CommandLine|contains:
+            - 'call create'
+            - '/node:'
+            - ' delete'
+            - 'shadowcopy'
+    condition: all of selection_*
+falsepositives:
+    - Administrator scripts that start or stop processes through WMIC
+level: high
