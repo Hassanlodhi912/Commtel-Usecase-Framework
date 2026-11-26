@@ -1,0 +1,87 @@
+<!-- CUC-276: Clear Windows Event Logs (MITRE ATT&CK T1070.001) - rule IDs 102760-102769 -->
+
+<group name="cuc_276,windows,defense_evasion,">
+
+  <!-- Rule 0: Security audit log cleared (Security 1102) -->
+  <rule id="102760" level="12">
+    <if_sid>63103</if_sid>
+    <description>CUC-276: Security audit log cleared by $(win.logFileCleared.subjectUserName)</description>
+    <mitre><id>T1070.001</id></mitre>
+    <group>cuc_276_clear,</group>
+  </rule>
+
+  <!-- Rule 1: Any other event log cleared (System 104) -->
+  <rule id="102761" level="10">
+    <if_sid>63104</if_sid>
+    <description>CUC-276: Event log "$(win.logFileCleared.channel)" cleared by $(win.logFileCleared.subjectUserName)</description>
+    <mitre><id>T1070.001</id></mitre>
+    <group>cuc_276_clear,</group>
+  </rule>
+
+  <!-- Rule 2: Security-relevant channel cleared (System 104) -->
+  <rule id="102762" level="12">
+    <if_sid>102761</if_sid>
+    <field name="win.logFileCleared.channel" type="pcre2">(?i)^(System|Microsoft-Windows-Sysmon/Operational|Microsoft-Windows-PowerShell/Operational|Windows PowerShell|Microsoft-Windows-Windows Defender/Operational|Microsoft-Windows-TaskScheduler/Operational|Microsoft-Windows-TerminalServices-.*|Microsoft-Windows-WMI-Activity/Operational)$</field>
+    <description>CUC-276: Security-relevant event log "$(win.logFileCleared.channel)" cleared by $(win.logFileCleared.subjectUserName)</description>
+    <mitre><id>T1070.001</id></mitre>
+    <group>cuc_276_clear,</group>
+  </rule>
+
+  <!-- Rule 3: wevtutil cl / clear-log (Security 4688) -->
+  <rule id="102763" level="12">
+    <if_group>windows</if_group>
+    <field name="win.system.eventID">^4688$</field>
+    <field name="win.eventdata.newProcessName" type="pcre2">(?i)\\wevtutil\.exe$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)\s(cl|clear-log)\s</field>
+    <description>CUC-276: Event log cleared via wevtutil: $(win.eventdata.commandLine)</description>
+    <mitre><id>T1070.001</id></mitre>
+  </rule>
+
+  <!-- Rule 4: PowerShell log-clearing cmdlets / .NET ClearLog (Security 4688) -->
+  <rule id="102764" level="12">
+    <if_group>windows</if_group>
+    <field name="win.system.eventID">^4688$</field>
+    <field name="win.eventdata.newProcessName" type="pcre2">(?i)\\(powershell|pwsh)\.exe$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(Clear-EventLog|Remove-EventLog|Limit-EventLog|\.ClearLog\(|EventLogSession)</field>
+    <description>CUC-276: Event log cleared via PowerShell: $(win.eventdata.commandLine)</description>
+    <mitre><id>T1070.001</id><id>T1059.001</id></mitre>
+  </rule>
+
+  <!-- Rule 5: PowerShell script block clearing logs (PowerShell 4104) -->
+  <rule id="102765" level="12">
+    <if_group>windows</if_group>
+    <field name="win.system.eventID">^4104$</field>
+    <field name="win.eventdata.scriptBlockText" type="pcre2">(?i)(Clear-EventLog\s+-|Remove-EventLog\s+-|\.ClearLog\(|wevtutil(\.exe)?\s+(cl|clear-log)\s)</field>
+    <description>CUC-276: PowerShell script block clearing event logs</description>
+    <mitre><id>T1070.001</id><id>T1059.001</id></mitre>
+  </rule>
+
+  <!-- Rule 6: wevtutil cl / clear-log (Sysmon 1) -->
+  <rule id="102766" level="12">
+    <if_group>sysmon_event1</if_group>
+    <field name="win.eventdata.image" type="pcre2">(?i)\\wevtutil\.exe$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)\s(cl|clear-log)\s</field>
+    <description>CUC-276: Event log cleared via wevtutil (Sysmon): $(win.eventdata.commandLine)</description>
+    <mitre><id>T1070.001</id></mitre>
+  </rule>
+
+  <!-- Rule 7: .evtx files deleted from winevt\Logs (Security 4688) -->
+  <rule id="102767" level="12">
+    <if_group>windows</if_group>
+    <field name="win.system.eventID">^4688$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(\bdel\b|\berase\b|Remove-Item|\brm\b).*\\+winevt\\+logs\\+.*\.evtx</field>
+    <description>CUC-276: Event log files (.evtx) deleted: $(win.eventdata.commandLine)</description>
+    <mitre><id>T1070.001</id></mitre>
+  </rule>
+
+  <!-- Rule 8: Mass log wipe - 3+ logs cleared on one host in 2 minutes -->
+  <rule id="102768" level="14" frequency="3" timeframe="120">
+    <if_matched_group>cuc_276_clear</if_matched_group>
+    <same_field>win.system.computer</same_field>
+    <description>CUC-276: Multiple Windows event logs cleared on the same host (mass log wipe)</description>
+    <mitre><id>T1070.001</id></mitre>
+  </rule>
+
+  <!-- 102769: reserved for CUC-276 -->
+
+</group>

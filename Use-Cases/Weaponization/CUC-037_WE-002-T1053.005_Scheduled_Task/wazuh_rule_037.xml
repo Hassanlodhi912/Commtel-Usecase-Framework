@@ -1,0 +1,90 @@
+<!-- CUC-037: Scheduled Task (MITRE ATT&CK T1053.005) - rule IDs 100370-100379 -->
+
+<group name="cuc_037,persistence,">
+
+  <!-- Rule 1: schtasks.exe /create (Security 4688) -->
+  <rule id="100370" level="8">
+    <if_sid>67027</if_sid>
+    <field name="win.system.eventID">^4688$</field>
+    <field name="win.eventdata.newProcessName" type="pcre2">(?i)\\schtasks\.exe$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)\s/create\b</field>
+    <description>CUC-037: Scheduled task created via schtasks: $(win.eventdata.commandLine)</description>
+    <mitre><id>T1053.005</id></mitre>
+  </rule>
+
+  <!-- Rule 2: schtasks /create on a remote host (/s) -->
+  <rule id="100372" level="12">
+    <if_sid>100370</if_sid>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)\s/s\s+\S</field>
+    <description>CUC-037: Scheduled task created on a REMOTE host via schtasks: $(win.eventdata.commandLine)</description>
+    <mitre><id>T1053.005</id></mitre>
+  </rule>
+
+  <!-- Rule 3: schtasks /create with logon/startup trigger or SYSTEM account -->
+  <rule id="100371" level="12">
+    <if_sid>100370</if_sid>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(/sc\s+(onlogon|onstart|onidle)|/ru\s+"?(nt authority\\+)?system)</field>
+    <description>CUC-037: Persistent scheduled task (logon/startup trigger or SYSTEM) via schtasks: $(win.eventdata.commandLine)</description>
+    <mitre><id>T1053.005</id></mitre>
+  </rule>
+
+  <!-- Rule 4a: any scheduled task created (Security 4698) - visibility and correlation base -->
+  <rule id="100373" level="6">
+    <if_sid>60228</if_sid>
+    <description>CUC-037: Scheduled task created: $(win.eventdata.taskName) by $(win.eventdata.subjectUserName)</description>
+    <mitre><id>T1053.005</id></mitre>
+    <group>cuc_037_task,</group>
+  </rule>
+
+  <!-- Rule 4b: hidden task (4698) -->
+  <rule id="100374" level="12">
+    <if_sid>100373</if_sid>
+    <field name="win.eventdata.taskContent" type="pcre2">(?i)(&amp;lt;|&lt;)Hidden(&amp;gt;|&gt;)true</field>
+    <description>CUC-037: HIDDEN scheduled task created: $(win.eventdata.taskName) by $(win.eventdata.subjectUserName)</description>
+    <mitre><id>T1053.005</id></mitre>
+    <group>cuc_037_task,</group>
+  </rule>
+
+  <!-- Rule 4c: task runs as SYSTEM or with highest privileges (4698) -->
+  <rule id="100375" level="10">
+    <if_sid>100373</if_sid>
+    <field name="win.eventdata.taskContent" type="pcre2">(?i)((&amp;lt;|&lt;)UserId(&amp;gt;|&gt;)(S-1-5-18|SYSTEM|NT AUTHORITY\+SYSTEM)|(&amp;lt;|&lt;)RunLevel(&amp;gt;|&gt;)HighestAvailable)</field>
+    <description>CUC-037: Scheduled task running as SYSTEM or with highest privileges: $(win.eventdata.taskName) by $(win.eventdata.subjectUserName)</description>
+    <mitre><id>T1053.005</id></mitre>
+    <group>cuc_037_task,</group>
+  </rule>
+
+  <!-- Rule 4d: task action is an interpreter/LOLBin or runs from a user-writable path (4698) -->
+  <rule id="100376" level="10">
+    <if_sid>100373</if_sid>
+    <field name="win.eventdata.taskContent" type="pcre2">(?i)(&amp;lt;|&lt;)Command(&amp;gt;|&gt;)("?[^&amp;]*(\+(Users|ProgramData|Temp)\+|\+(cmd|powershell|pwsh|wscript|cscript|mshta|rundll32|regsvr32|msiexec|certutil|bitsadmin)\.exe)|"?(cmd|powershell|pwsh|wscript|cscript|mshta|rundll32|regsvr32)(\.exe)?"?(&amp;lt;|&lt;))</field>
+    <description>CUC-037: Scheduled task action is a command interpreter or runs from a user-writable path: $(win.eventdata.taskName)</description>
+    <mitre><id>T1053.005</id></mitre>
+    <group>cuc_037_task,</group>
+  </rule>
+
+  <!-- Rule 5: PowerShell / CIM task registration (PowerShell 4104) -->
+  <rule id="100377" level="10">
+    <if_sid>91802</if_sid>
+    <field name="win.system.eventID">^4104$</field>
+    <field name="win.eventdata.scriptBlockText" type="pcre2">(?is)^(?!.*__cmdletization).*\b(Register-ScheduledTask|Register-ScheduledJob|Set-ScheduledTask|New-ScheduledTaskAction|PS_ScheduledTask|RegisterByXml)\b</field>
+    <description>CUC-037: PowerShell script block registering or modifying a scheduled task</description>
+    <mitre><id>T1053.005</id><id>T1059.001</id></mitre>
+  </rule>
+
+  <!-- Rule 5a: known benign module load (code is defined, not run) -->
+  <rule id="100378" level="0">
+    <if_sid>100377</if_sid>
+    <field name="win.eventdata.path" type="pcre2">(?i)\\+Modules\\+Invoke-AtomicRedTeam\\+[^\\]+\\+Public\\+Invoke-SetupAtomicRunner\.ps1$</field>
+    <description>CUC-037: Known benign module load: Invoke-SetupAtomicRunner.ps1</description>
+  </rule>
+
+  <!-- Rule 6: several tasks created on the same host in 5 minutes -->
+  <rule id="100379" level="13" frequency="3" timeframe="300">
+    <if_matched_group>cuc_037_task</if_matched_group>
+    <same_field>win.system.computer</same_field>
+    <description>CUC-037: Multiple scheduled tasks created on the same host within 5 minutes</description>
+    <mitre><id>T1053.005</id></mitre>
+  </rule>
+
+</group>
