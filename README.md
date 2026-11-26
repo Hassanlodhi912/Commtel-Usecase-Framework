@@ -4,6 +4,22 @@ Commtel SIEM use case library. Each use case is mapped to a Cyber Kill Chain sta
 
 Maintained by **Hassan Kaleem**, Detection Engineer at Commtel.
 
+## Progress
+
+**5 of 581 use cases documented** (`█░░░░░░░░░░░░░░░░░░░ 0.9%`)
+
+| Kill chain stage | Code | Total | Documented | Pending | Progress |
+|---|---|---|---|---|---|
+| Reconnaissance | RE | 3 | 0 | 3 | `░░░░░░░░░░░░░░░░░░░░ 0.0%` |
+| Weaponization | WE | 133 | 2 | 131 | `█░░░░░░░░░░░░░░░░░░░ 1.5%` |
+| Delivery | DE | 238 | 2 | 236 | `█░░░░░░░░░░░░░░░░░░░ 0.8%` |
+| Exploitation | EX | 89 | 0 | 89 | `░░░░░░░░░░░░░░░░░░░░ 0.0%` |
+| Installation | IN | 49 | 0 | 49 | `░░░░░░░░░░░░░░░░░░░░ 0.0%` |
+| Command & Control | CC | 33 | 0 | 33 | `░░░░░░░░░░░░░░░░░░░░ 0.0%` |
+| Actions on Objectives | AO | 36 | 1 | 35 | `█░░░░░░░░░░░░░░░░░░░ 2.8%` |
+| **Total** | | **581** | **5** | **576** | `█░░░░░░░░░░░░░░░░░░░ 0.9%` |
+
+The full register of 581 use cases, with CUC numbers, MITRE techniques and status, is in [Framework/Commtel_Usecase_Framework.xlsx](Framework/Commtel_Usecase_Framework.xlsx).
 ## Structure
 
 ```
@@ -34,7 +50,7 @@ Open a use case folder for its description and documents.
 
 1. Create `Use-Cases/<Stage>/CUC-NNN_<Code>-<Technique>_<Name>/`.
 2. Add the PDF, the DOCX and the Wazuh rule if there is one.
-3. Add a row to the table above.
+3. Add a row to the table above, update the Progress table, and set the status to Documented in the register.
 
 ## Related
 
