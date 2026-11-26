@@ -1,7 +1,7 @@
 import sys,os
 sys.path.insert(0,sys.argv[1])
 from PIL import Image,ImageDraw,ImageChops
-A='C:/Users/muham/Desktop/CUC-037/shots/';B='C:/Users/muham/Desktop/CUC-037/shots_hl/';os.makedirs(B,exist_ok=True)
+A=sys.argv[2];B=sys.argv[3]  # input and output screenshot folders;os.makedirs(B,exist_ok=True)
 Y=(255,230,0)
 def mark(n,boxes,fill=True):
     i=Image.open(A+n+'.png').convert('RGB')
